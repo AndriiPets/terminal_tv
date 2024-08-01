@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"io"
 	"os"
 
@@ -74,10 +73,7 @@ func download_video(url string) VideoData {
 
 func main() {
 	vPlayer := NewVideoPlayer()
-	err := vPlayer.LoadFromURL("https://www.youtube.com/watch?v=_C6PbG5cH14&list=LL&index=2")
-	if err != nil {
-		fmt.Println(err.Error())
-	}
+	go vPlayer.LoadFromURL("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
 
 	RunTUI(vPlayer)
 }

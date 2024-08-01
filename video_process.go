@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"os/signal"
+	"sync"
 	"syscall"
 )
 
@@ -21,7 +22,7 @@ type Video struct {
 	data         VideoData
 	framebuffer  []byte
 	frameCounter int
-	frameMap     map[int]string
+	frameMap     sync.Map
 	pipe         io.ReadCloser
 	cmd          *exec.Cmd
 	EOF          bool
@@ -31,7 +32,6 @@ func NewVideo(file string, data VideoData) *Video {
 	return &Video{
 		data:     data,
 		filename: file,
-		frameMap: make(map[int]string),
 	}
 }
 
@@ -45,14 +45,10 @@ func (v *Video) init() error {
 		"-i", v.filename,
 		"-f", "image2pipe",
 		"-loglevel", "quiet",
-		//"-vf", fmt.Sprintf("scale=iw/%d:ih/%d", scale_factor, scale_factor), //resize by the factor of 2
 		"-pix_fmt", "rgba",
 		"-vcodec", "rawvideo",
 		"-",
 	)
-
-	//v.data.heigth = v.data.heigth / scale_factor
-	//v.data.width = v.data.width / scale_factor
 
 	v.cmd = cmd
 	pipe, err := cmd.StdoutPipe()

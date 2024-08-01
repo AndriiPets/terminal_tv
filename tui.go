@@ -47,7 +47,13 @@ func (app *App) tick() tea.Cmd {
 }
 
 func (app *App) updateFrame() (tea.Model, tea.Cmd) {
-	nextFrame, ok := app.VideoPlayer.Video.frameMap[app.fCounter]
+
+	if app.VideoPlayer.Video == nil {
+		app.currFrame = "//////NO_VIDEO//////"
+		return app, app.tick()
+	}
+
+	nextFrm, ok := app.VideoPlayer.Video.frameMap.Load(app.fCounter)
 	if !ok {
 		if len(app.prevFrame) == 0 {
 			app.currFrame = "//////LOADING_VIDEO//////"
@@ -56,6 +62,8 @@ func (app *App) updateFrame() (tea.Model, tea.Cmd) {
 		}
 		return app, app.tick()
 	}
+
+	nextFrame := nextFrm.(string)
 
 	app.currFrame = nextFrame
 	app.prevFrame = app.currFrame
@@ -84,7 +92,7 @@ func (app *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 	case TickMsg:
-		if !app.pause {
+		if !app.pause && app.VideoPlayer.Video != nil {
 			app.fCounter++
 		}
 

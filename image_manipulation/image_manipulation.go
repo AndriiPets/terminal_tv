@@ -17,7 +17,13 @@ var (
 	CHARS              = []byte(" .,:;i1tfLCG08@")
 )
 
-func Byte2ascii2(raw []byte, w, h int, code string) (strings.Builder, error) {
+type Frame struct {
+	Content string
+	Width   int
+	Height  int
+}
+
+func Byte2ascii2(raw []byte, w, h int, code string) (Frame, error) {
 	// imgData, _, err := image.Decode(bytes.NewReader(raw))
 	// if err != nil {
 	// 	return "", fmt.Errorf("can't decode frame: %v", err)
@@ -34,7 +40,7 @@ func Byte2ascii2(raw []byte, w, h int, code string) (strings.Builder, error) {
 	//TODO: resize
 	smallImg, err := resizeImage(&imgData, 2)
 	if err != nil {
-		return sb, nil
+		return Frame{}, nil
 	}
 
 	//Create new imaga with rezized proportions, draw in original img
@@ -59,7 +65,7 @@ func Byte2ascii2(raw []byte, w, h int, code string) (strings.Builder, error) {
 		sb.WriteString("\n")
 	}
 
-	return sb, nil
+	return Frame{sb.String(), rect.Dx(), rect.Dy()}, nil
 }
 
 func resizeImage(img *image.RGBA, scale int) (image.Image, error) {

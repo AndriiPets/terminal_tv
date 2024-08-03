@@ -3,10 +3,18 @@ package main
 import (
 	"fmt"
 	"os"
+	"strconv"
+	"strings"
 	"time"
 
+	ascii "github.com/AndriiPets/terminal_yt/image_manipulation"
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
+)
+
+const (
+	default_w = 160
+	default_h = 90
 )
 
 type App struct {
@@ -14,9 +22,10 @@ type App struct {
 	VideoPlayer *VideoPlayer
 	fps         float64
 
-	fCounter  int
-	currFrame string
-	prevFrame string
+	fCounter      int
+	currFrame     ascii.Frame
+	prevFrame     ascii.Frame
+	num_of_frames int
 
 	pause bool
 }
@@ -32,6 +41,9 @@ func RunTUI(vp *VideoPlayer) {
 		VideoPlayer: vp,
 		fps:         30,
 	}
+
+	durMilisecond, _ := strconv.Atoi(vp.Video.data.duration)
+	app.num_of_frames = (durMilisecond / 1000) * int(app.fps)
 
 	p := tea.NewProgram(app)
 	if _, err := p.Run(); err != nil {
@@ -49,21 +61,21 @@ func (app *App) tick() tea.Cmd {
 func (app *App) updateFrame() (tea.Model, tea.Cmd) {
 
 	if app.VideoPlayer.Video == nil {
-		app.currFrame = "//////NO_VIDEO//////"
+		app.currFrame = ascii.Frame{Content: "//////NO_VIDEO//////", Width: default_w, Height: default_h}
 		return app, app.tick()
 	}
 
 	nextFrm, ok := app.VideoPlayer.Video.frameMap.Load(app.fCounter)
 	if !ok {
-		if len(app.prevFrame) == 0 {
-			app.currFrame = "//////LOADING_VIDEO//////"
+		if len(app.prevFrame.Content) == 0 {
+			app.currFrame = ascii.Frame{Content: "//////LOADING_VIDEO//////", Width: default_w, Height: default_h}
 		} else {
 			app.currFrame = app.prevFrame
 		}
 		return app, app.tick()
 	}
 
-	nextFrame := nextFrm.(string)
+	nextFrame := nextFrm.(ascii.Frame)
 
 	app.currFrame = nextFrame
 	app.prevFrame = app.currFrame
@@ -96,7 +108,7 @@ func (app *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			app.fCounter++
 		}
 
-		if app.currFrame == "EOF" {
+		if app.fCounter >= app.num_of_frames {
 			app.fCounter = 0
 		}
 
@@ -108,8 +120,19 @@ func (app *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (app *App) View() string {
 
-	frame := app.currFrame
-	frame += fmt.Sprintf("counter: %d", app.fCounter)
+	frame := app.currFrame.Content
+	frame += fmt.Sprintf("counter: %d total: %d", app.fCounter, app.num_of_frames)
+
+	//playback bar
+	var sb strings.Builder
+	vPercent := (app.fCounter * 100) / app.num_of_frames
+	//fPercent := (vPercent * app.currFrame.Width) / app.num_of_frames
+	passed := strings.Repeat("#", vPercent)
+	left := strings.Repeat(".", 100-vPercent)
+	sb.WriteString(passed)
+	sb.WriteString(left)
+
+	frame += fmt.Sprintf("\n%s", sb.String())
 
 	return frame
 }

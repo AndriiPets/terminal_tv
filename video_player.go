@@ -15,16 +15,25 @@ func NewVideoPlayer() *VideoPlayer {
 	return &VideoPlayer{}
 }
 
-func (vp *VideoPlayer) LoadFromURL(url string) error {
+func (vp *VideoPlayer) LoadVideoMetadata(url string) error {
 	data, url := getStream(url)
 	video := NewVideo(url, data)
+
+	vp.Video = video
+
+	return nil
+}
+
+func (vp *VideoPlayer) StartStream() error {
+	video := vp.Video
+	data := video.data
+
 	err := video.init()
 
 	if err != nil {
 		fmt.Println("video init error:", err)
 		return err
 	}
-	vp.Video = video
 
 	var wg sync.WaitGroup
 
@@ -33,17 +42,8 @@ func (vp *VideoPlayer) LoadFromURL(url string) error {
 
 		go func(video *Video) {
 			defer wg.Done()
-			frameBuilder, _ := ascii.Byte2ascii2(video.framebuffer, data.width, data.heigth, ascii.AsciiTableSimple)
-			frame := frameBuilder.String()
+			frame, _ := ascii.Byte2ascii2(video.framebuffer, data.width, data.heigth, ascii.AsciiTableSimple)
 
-			if video.EOF {
-				frame = "EOF"
-			}
-
-			// if err != nil {
-			// 	fmt.Printf("unable to encode frame No:%d", video.frameCounter)
-			// 	return err
-			// }
 			video.frameMap.Store(video.frameCounter, frame)
 		}(video)
 	}

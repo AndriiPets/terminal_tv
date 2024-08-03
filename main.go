@@ -22,10 +22,11 @@ func getStream(url string) (VideoData, string) {
 		panic(err)
 	}
 	vData := VideoData{
-		width:  format.Width,
-		heigth: format.Height,
-		depth:  4, //idk this value was in the example
-		fps:    float64(format.FPS),
+		width:    format.Width,
+		heigth:   format.Height,
+		depth:    4, //idk this value was in the example
+		fps:      float64(format.FPS),
+		duration: format.ApproxDurationMs,
 	}
 
 	return vData, stream
@@ -73,7 +74,8 @@ func download_video(url string) VideoData {
 
 func main() {
 	vPlayer := NewVideoPlayer()
-	go vPlayer.LoadFromURL("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
+	vPlayer.LoadVideoMetadata("https://www.youtube.com/watch?v=dQw4w9WgXcQ") //https://www.youtube.com/watch?v=dQw4w9WgXcQ
+	go vPlayer.StartStream()                                                 //https://www.youtube.com/watch?v=_C6PbG5cH14&list=LL&index=3
 
 	RunTUI(vPlayer)
 }

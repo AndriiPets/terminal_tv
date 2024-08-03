@@ -11,10 +11,11 @@ import (
 )
 
 type VideoData struct {
-	width  int
-	heigth int
-	depth  int
-	fps    float64
+	width    int
+	heigth   int
+	depth    int
+	fps      float64
+	duration string
 }
 
 type Video struct {

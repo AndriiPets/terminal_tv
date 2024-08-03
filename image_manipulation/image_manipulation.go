@@ -3,8 +3,10 @@ package ascii
 import (
 	"image"
 	"image/draw"
+	"math"
 	"strings"
 
+	"github.com/AndriiPets/terminal_yt/utils"
 	"github.com/disintegration/imaging"
 )
 
@@ -30,7 +32,7 @@ func Byte2ascii2(raw []byte, w, h int, code string) (strings.Builder, error) {
 
 	var sb strings.Builder
 	//TODO: resize
-	smallImg, err := resizeImage(&imgData, 80, 40)
+	smallImg, err := resizeImage(&imgData, 2)
 	if err != nil {
 		return sb, nil
 	}
@@ -60,12 +62,16 @@ func Byte2ascii2(raw []byte, w, h int, code string) (strings.Builder, error) {
 	return sb, nil
 }
 
-func resizeImage(img *image.RGBA, w, h int) (image.Image, error) {
-	//imgW := float64(img.Bounds().Dx())
-	//imgH := float64(img.Bounds().Dy())
-	//aspect := imgW / imgH
+func resizeImage(img *image.RGBA, scale int) (image.Image, error) {
+	imgW := float64(img.Bounds().Dx())
+	imgH := float64(img.Bounds().Dy())
+	aspect := imgW / imgH
+	termW, termH, _ := utils.GetTermSize()
 
-	smallImg := imaging.Resize(img, w, h, imaging.NearestNeighbor)
+	width := math.Min(float64(termH*scale), float64(termW))
+	height := width / aspect
+
+	smallImg := imaging.Resize(img, int(width), int(height), imaging.NearestNeighbor)
 
 	return smallImg, nil
 }

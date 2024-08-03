@@ -6,6 +6,7 @@ require (
 	github.com/charmbracelet/bubbletea v0.25.0
 	github.com/disintegration/imaging v1.6.2
 	github.com/kkdai/youtube/v2 v2.10.1
+	golang.org/x/term v0.22.0
 )
 
 require (
@@ -21,8 +22,7 @@ require (
 	github.com/muesli/termenv v0.15.2 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	golang.org/x/sync v0.7.0 // indirect
-	golang.org/x/sys v0.18.0 // indirect
-	golang.org/x/term v0.6.0 // indirect
+	golang.org/x/sys v0.22.0 // indirect
 )
 
 require (

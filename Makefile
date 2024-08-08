@@ -2,7 +2,7 @@ build:
 	@go build -o bin/yt
 
 run: build
-	@./bin/yt
+	@./bin/yt --help
 
 test:
 	@go test ./... -v

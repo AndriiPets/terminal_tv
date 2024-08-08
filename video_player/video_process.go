@@ -1,4 +1,4 @@
-package main
+package videoplayer
 
 import (
 	"fmt"
@@ -11,19 +11,19 @@ import (
 )
 
 type VideoData struct {
-	width    int
-	heigth   int
-	depth    int
-	fps      float64
-	duration string
+	Width    int
+	Heigth   int
+	Depth    int
+	Fps      float64
+	Duration string
 }
 
 type Video struct {
-	filename     string
-	data         VideoData
-	framebuffer  []byte
+	stream       string
+	Data         VideoData
+	Framebuffer  []byte
 	frameCounter int
-	frameMap     sync.Map
+	FrameMap     sync.Map
 	pipe         io.ReadCloser
 	cmd          *exec.Cmd
 	EOF          bool
@@ -31,8 +31,8 @@ type Video struct {
 
 func NewVideo(file string, data VideoData) *Video {
 	return &Video{
-		data:     data,
-		filename: file,
+		Data:   data,
+		stream: file,
 	}
 }
 
@@ -43,7 +43,7 @@ func (v *Video) init() error {
 	// ffmpeg command to pipe video data to stdout in 8-bit RGBA format.
 	cmd := exec.Command(
 		"ffmpeg",
-		"-i", v.filename,
+		"-i", v.stream,
 		"-f", "image2pipe",
 		"-loglevel", "quiet",
 		"-pix_fmt", "rgba",
@@ -63,8 +63,8 @@ func (v *Video) init() error {
 		return err
 	}
 
-	if v.framebuffer == nil {
-		v.framebuffer = make([]byte, v.data.width*v.data.heigth*v.data.depth)
+	if v.Framebuffer == nil {
+		v.Framebuffer = make([]byte, v.Data.Width*v.Data.Heigth*v.Data.Depth)
 	}
 	return nil
 }
@@ -77,7 +77,7 @@ func (v *Video) Read() bool {
 		}
 	}
 
-	if _, err := io.ReadFull(v.pipe, v.framebuffer); err != nil {
+	if _, err := io.ReadFull(v.pipe, v.Framebuffer); err != nil {
 		fmt.Println("error:", err)
 
 		if err.Error() == "EOF" {

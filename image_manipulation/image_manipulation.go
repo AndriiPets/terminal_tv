@@ -6,7 +6,6 @@ import (
 	"math"
 	"strings"
 
-	"github.com/AndriiPets/terminal_yt/utils"
 	"github.com/disintegration/imaging"
 )
 
@@ -23,7 +22,7 @@ type Frame struct {
 	Height  int
 }
 
-func Byte2ascii2(raw []byte, w, h int, code string) (Frame, error) {
+func Byte2ascii2(raw []byte, w, h, termW, termH int, code string) (Frame, error) {
 	// imgData, _, err := image.Decode(bytes.NewReader(raw))
 	// if err != nil {
 	// 	return "", fmt.Errorf("can't decode frame: %v", err)
@@ -38,7 +37,7 @@ func Byte2ascii2(raw []byte, w, h int, code string) (Frame, error) {
 
 	var sb strings.Builder
 	//TODO: resize
-	smallImg, err := resizeImage(&imgData, 2)
+	smallImg, err := resizeImage(&imgData, termW, termH, 2)
 	if err != nil {
 		return Frame{}, nil
 	}
@@ -68,11 +67,11 @@ func Byte2ascii2(raw []byte, w, h int, code string) (Frame, error) {
 	return Frame{sb.String(), rect.Dx(), rect.Dy()}, nil
 }
 
-func resizeImage(img *image.RGBA, scale int) (image.Image, error) {
+func resizeImage(img *image.RGBA, termW, termH, scale int) (image.Image, error) {
 	imgW := float64(img.Bounds().Dx())
 	imgH := float64(img.Bounds().Dy())
 	aspect := imgW / imgH
-	termW, termH, _ := utils.GetTermSize()
+	//termW, termH, _ := utils.GetTermSize()
 
 	width := math.Min(float64(termH*scale), float64(termW))
 	height := width / aspect

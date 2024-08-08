@@ -1,22 +1,32 @@
-package main
+package videoplayer
 
 import (
 	"fmt"
 	"sync"
 
 	ascii "github.com/AndriiPets/terminal_yt/image_manipulation"
+	"github.com/AndriiPets/terminal_yt/utils"
 )
 
 type VideoPlayer struct {
-	Video *Video
+	Video  *Video
+	Width  int
+	Heigth int
 }
 
 func NewVideoPlayer() *VideoPlayer {
-	return &VideoPlayer{}
+	termW, termH, _ := utils.GetTermSize()
+	return &VideoPlayer{
+		Width:  termW,
+		Heigth: termH,
+	}
 }
 
 func (vp *VideoPlayer) LoadVideoMetadata(url string) error {
-	data, url := getStream(url)
+	data, url, err := getStream(url)
+	if err != nil {
+		return err
+	}
 	video := NewVideo(url, data)
 
 	vp.Video = video
@@ -26,7 +36,7 @@ func (vp *VideoPlayer) LoadVideoMetadata(url string) error {
 
 func (vp *VideoPlayer) StartStream() error {
 	video := vp.Video
-	data := video.data
+	data := video.Data
 
 	err := video.init()
 
@@ -42,9 +52,9 @@ func (vp *VideoPlayer) StartStream() error {
 
 		go func(video *Video) {
 			defer wg.Done()
-			frame, _ := ascii.Byte2ascii2(video.framebuffer, data.width, data.heigth, ascii.AsciiTableSimple)
+			frame, _ := ascii.Byte2ascii2(video.Framebuffer, data.Width, data.Heigth, vp.Width, vp.Heigth, ascii.AsciiTableSimple)
 
-			video.frameMap.Store(video.frameCounter, frame)
+			video.FrameMap.Store(video.frameCounter, frame)
 		}(video)
 	}
 

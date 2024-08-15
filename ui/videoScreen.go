@@ -69,11 +69,6 @@ func (app *VideoScreen) tick() tea.Cmd {
 }
 
 func (app *VideoScreen) startStream() error {
-	// url := app.videoUrlInput
-	// err := app.VideoPlayer.LoadVideoMetadata(url)
-	// if err != nil {
-	// 	return err
-	// }
 
 	durMilisecond, err := strconv.Atoi(app.VideoPlayer.Video.Data.Duration)
 	if err != nil {

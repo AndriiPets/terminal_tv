@@ -10,17 +10,21 @@ import (
 )
 
 type SearchResult struct {
-	Url   string
-	Title string
+	url   string
+	title string
 }
+
+func (s SearchResult) Title() string       { return s.title }
+func (s SearchResult) Description() string { return s.url }
+func (s SearchResult) FilterValue() string { return s.title }
 
 func SearchYT(query string) ([]SearchResult, error) {
 
 	ctx, cancel := chromedp.NewContext(context.Background(), chromedp.WithLogf(log.Printf))
 	defer cancel()
 
-	// Creating timeout for 15 seconds
-	ctx, cancel = context.WithTimeout(ctx, time.Second*15)
+	// Creating timeout for 30 seconds
+	ctx, cancel = context.WithTimeout(ctx, time.Second*30)
 	defer cancel()
 
 	var videos []SearchResult
@@ -47,8 +51,8 @@ func SearchYT(query string) ([]SearchResult, error) {
 			return videos, fmt.Errorf("no title in attributes")
 		}
 		vid := SearchResult{
-			Url:   url,
-			Title: title,
+			url:   url,
+			title: title,
 		}
 
 		videos = append(videos, vid)

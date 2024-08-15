@@ -21,7 +21,7 @@ type (
 
 func RunTUI(vp *videoplayer.VideoPlayer, sType ScreenType) {
 
-	p := tea.NewProgram(NewRootScreen(vp, sType))
+	p := tea.NewProgram(NewRootScreen(vp, sType), tea.WithAltScreen())
 	if _, err := p.Run(); err != nil {
 		fmt.Printf("Alas, there's been an error: %v", err)
 		os.Exit(1)
